@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo Verse - Aventures Infinies par IA</title>
+    <!-- Importation des polices Google Fonts pour un style cohérent -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Styles CSS globaux et variables */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Couleurs principales */
+            --primary-bg: #0a0a0a; /* Fond très sombre */
+            --secondary-bg: #1a1a1a; /* Fond des conteneurs */
+            --card-bg: rgba(30, 30, 30, 0.9); /* Fond des cartes avec transparence */
+            --accent-color: #00d9ff; /* Couleur d'accentuation principale (bleu cyan) */
+            --accent-secondary: #ff6b35; /* Couleur d'accentuation secondaire (orange) */
+            --success-color: #00ff88; /* Couleur pour le succès (vert vif) */
+            --warning-color: #ffaa00; /* Couleur pour les avertissements (orange) */
+            --error-color: #ff4444; /* Couleur pour les erreurs (rouge vif) */
+            --text-primary: #ffffff; /* Texte principal (blanc) */
+            --text-secondary: #b0b0b0; /* Texte secondaire (gris clair) */
+            --border-color: rgba(0, 217, 255, 0.3); /* Couleur de bordure avec transparence */
+            --health-color: #4CAF50; /* Vert pour la santé */
+            --energy-color: #2196F3; /* Bleu pour l'énergie */
+            --gold-color: #FFD700; /* Or pour l'argent */
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-y: auto; /* Permet le défilement si le contenu dépasse la hauteur de la fenêtre */
+        }
+
+        .container {
+            background: var(--secondary-bg);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.2), 0 0 15px rgba(255, 107, 53, 0.1);
+            padding: 30px;
+            width: 90%;
+            max-width: 900px; /* Largeur maximale pour le contenu principal */
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            z-index: 1; /* S'assure que le contenu est au-dessus des éléments décoratifs */
+        }
+
+        /* Effet de scanline pour le style futuriste */
+        .scanline-effect::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Animation de lueur pour les éléments interactifs */
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px var(--accent-color); }
+            50% { box-shadow: 0 0 20px var(--accent-color), 0 0 30px var(--accent-secondary); }
+            100% { box-shadow: 0 0 5px var(--accent-color); }
+        }
+
+        /* En-tête du jeu */
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .game-header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3em;
+            color: var(--accent-color);
+            text-shadow: 0 0 15px var(--accent-color), 0 0 25px rgba(0, 217, 255, 0.7);
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+
+        .game-header p {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Carte d'information/bienvenue */
+        .info-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-card h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-secondary);
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .info-card h2::after {
+            content: '✨'; /* Icône décorative */
+            position: absolute;
+            right: -30px;
+            top: -5px;
+            font-size: 0.8em;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .info-card p {
+            font-size: 1.05em;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        /* Formulaires et entrées */
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent-color);
+            font-size: 1.1em;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            font-size: 1.1em;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input[type="text"]:focus {
+            border-color: var(--accent-secondary);
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+
+        /* Boutons stylisés */
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--accent-color), #00aaff);
+            color: var(--primary-bg);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #00aaff, var(--accent-color));
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 217, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(90deg, var(--accent-secondary), #ff4400);
+            color: var(--text-primary);
+            border: 1px solid var(--accent-secondary);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(90deg, #ff4400, var(--accent-secondary));
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-text {
+            background: none;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            padding: 10px 20px;
+            font-size: 1em;
+        }
+
+        .btn-text:hover {
+            background-color: rgba(0, 217, 255, 0.1);
+            color: #ffffff;
+        }
+
+        /* Loading indicator */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            display: none; /* Masqué par défaut */
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Zone de jeu active */
+        #gameArea {
+            display: none; /* Masqué par défaut jusqu'au démarrage du jeu */
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .game-stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 15px;
+        }
+
+        .stat-item {
+            flex: 1 1 200px; /* Permet le wrapping sur petits écrans */
+            text-align: center;
+        }
+
+        .stat-item label {
+            display: block;
+            color: var(--accent-color);
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .progress-bar-container {
+            width: 80%;
+            height: 10px;
+            background-color: var(--primary-bg);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 5px auto 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 100%; /* Sera ajusté par JS */
+            background: linear-gradient(90deg, var(--health-color), #ff8888); /* Vert vers Rouge */
+            border-radius: 5px;
+            transition: width 0.5s ease-out, background 0.5s ease-out;
+        }
+
+        /* Spécifique aux barres de progression */
+        #displayHealthBar { background: linear-gradient(90deg, var(--health-color), #88ff88); }
+        #displayEnergyBar { background: linear-gradient(90deg, var(--energy-color), #88aaff); }
+
+        .story-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 400px; /* Hauteur maximale pour le défilement */
+            overflow-y: auto; /* Permet le défilement du contenu */
+            scroll-behavior: smooth; /* Défilement doux */
+        }
+
+        .story-entry {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .story-entry:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .story-entry .user-action {
+            font-style: italic;
+            color: var(--accent-secondary);
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 3px solid var(--accent-secondary);
+        }
+
+        .story-entry .ai-response {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .story-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .story-container::-webkit-scrollbar-track {
+            background: var(--primary-bg);
+            border-radius: 10px;
+        }
+
+        .story-container::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 10px;
+            border: 2px solid var(--primary-bg);
+        }
+
+        .story-container::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-secondary);
+        }
+
+        .action-area {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .action-area textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            font-size: 1.05em;
+            resize: vertical; /* Permet le redimensionnement vertical */
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .action-area textarea:focus {
+            border-color: var(--accent-secondary);
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+
+        .action-area .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Modale d'alerte personnalisée */
+        .alert-modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .alert-modal-content {
+            background-color: var(--card-bg);
+            margin: auto;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            width: 80%;
+            max-width: 400px;
+            border-radius: 15px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 5px 25px rgba(0, 217, 255, 0.4);
+        }
+
+        .alert-modal-content h3 {
+            color: var(--accent-color);
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .alert-modal-content p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .alert-modal-close-btn {
+            background: linear-gradient(90deg, var(--accent-secondary), #ff4400);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .alert-modal-close-btn:hover {
+            background: linear-gradient(90deg, #ff4400, var(--accent-secondary));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        /* Section Inventaire et Compétences */
+        .game-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .inventory-section, .skills-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex: 1 1 45%; /* S'adapte mieux sur mobile, deux colonnes sur desktop */
+            min-width: 300px; /* Empêche les sections de devenir trop petites */
+        }
+
+        .inventory-section h3, .skills-section h3 {
+            color: var(--accent-color);
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .inventory-slot {
+            background-color: var(--primary-bg);
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            text-align: center;
+            padding: 5px;
+            position: relative;
+            overflow: hidden;
+            word-wrap: break-word; /* Ensure long item names wrap */
+        }
+
+        .inventory-slot span {
+            display: block;
+            width: 100%;
+            white-space: normal; /* Allow text to wrap */
+        }
+
+        .inventory-slot.filled {
+            border: 1px solid var(--accent-secondary);
+            background-color: rgba(255, 107, 53, 0.1);
+        }
+
+        .inventory-item-count {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 5px;
+            border-radius: 5px;
+        }
+
+        .skills-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .skills-list li {
+            background-color: rgba(0, 217, 255, 0.05);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .skills-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .skills-list li strong {
+            color: var(--accent-secondary);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .game-header h1 {
+                font-size: 2.2em;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .info-card h2 {
+                font-size: 1.5em;
+            }
+
+            .info-card h2::after {
+                right: -20px;
+            }
+
+            .btn {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .game-stats {
+                flex-direction: column;
+            }
+
+            .stat-item {
+                margin-bottom: 10px;
+            }
+
+            .game-details {
+                flex-direction: column;
+            }
+
+            .inventory-section, .skills-section {
+                flex: 1 1 100%;
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container scanline-effect">
+        <!-- En-tête du jeu -->
+        <header class="game-header">
+            <h1>Echo Verse</h1>
+            <p>Aventures infinies générées par l'Intelligence Artificielle</p>
+        </header>
+
+        <!-- Section de bienvenue/démarrage du jeu -->
+        <section id="startScreen">
+            <div class="info-card">
+                <h2>Bienvenue, explorateur !</h2>
+                <p>Dans Echo Verse, vous n'êtes pas qu'un simple joueur, vous êtes le héros d'une histoire sans fin, créée et façonnée par une intelligence artificielle. Vos choix guident le récit, influencent votre destinée, et ouvrent des chemins inattendus. L'aventure n'attend que vous. Entrez votre nom, et préparez-vous à plonger dans l'inconnu.</p>
+            </div>
+
+            <div class="input-group">
+                <label for="playerNameInput">Nom de joueur</label>
+                <input type="text" id="playerNameInput" placeholder="Entrez votre nom de joueur">
+            </div>
+
+            <div class="btn-container">
+                <!-- Bouton avec ID pour attacher l'événement en JS -->
+                <button class="btn btn-primary" id="startGameButton">
+                    COMMENCER L'AVENTURE
+                </button>
+            </div>
+
+            <div id="loadingStory" class="loading">
+                <div class="spinner"></div>
+                <span>Préparation de votre aventure...</span>
+            </div>
+        </section>
+
+        <!-- Zone de jeu principale (initialement masquée) -->
+        <section id="gameArea">
+            <div class="game-stats">
+                <div class="stat-item">
+                    <label>Joueur</label>
+                    <span id="displayPlayerName" class="stat-value">Nom du Joueur</span>
+                </div>
+                <div class="stat-item">
+                    <label>Emplacement</label>
+                    <span id="displayCurrentLocation" class="stat-value">Inconnu</span>
+                </div>
+                <div class="stat-item">
+                    <label>Santé</label>
+                    <span id="displayHealthValue" class="stat-value">100%</span>
+                    <div class="progress-bar-container">
+                        <div id="displayHealthBar" class="progress-bar"></div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <label>Énergie</label>
+                    <span id="displayEnergyValue" class="stat-value">100%</span>
+                    <div class="progress-bar-container">
+                        <div id="displayEnergyBar" class="progress-bar"></div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <label>Or</label>
+                    <span id="displayGoldValue" class="stat-value">0</span>
+                </div>
+            </div>
+
+            <div class="story-container" id="storyContent">
+                <!-- Les entrées de l'histoire seront ajoutées ici par JavaScript -->
+            </div>
+
+            <div class="action-area">
+                <label for="actionInput">Votre prochaine action :</label>
+                <textarea id="actionInput" placeholder="Décrivez ce que vous voulez faire..."></textarea>
+                <div class="btn-container">
+                    <!-- Boutons avec IDs pour attacher l'événement en JS -->
+                    <button class="btn btn-primary" id="performActionButton">
+                        Agir
+                    </button>
+                    <button class="btn btn-secondary" id="resetGameButton">
+                        Réinitialiser l'Aventure
+                    </button>
+                </div>
+                <div id="loadingAction" class="loading">
+                    <div class="spinner"></div>
+                    <span>Traitement de votre action...</span>
+                </div>
+            </div>
+
+            <div class="game-details">
+                <div class="inventory-section">
+                    <h3>Inventaire</h3>
+                    <div class="inventory-grid" id="inventoryGrid">
+                        <!-- Les slots d'inventaire seront générés par JS -->
+                    </div>
+                </div>
+                <div class="skills-section">
+                    <h3>Compétences</h3>
+                    <ul class="skills-list" id="displaySkills">
+                        <li>Aucune compétence pour le moment.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modale d'alerte personnalisée -->
+    <div id="alertModal" class="alert-modal">
+        <div class="alert-modal-content">
+            <h3 id="alertModalTitle"></h3>
+            <p id="alertModalMessage"></p>
+            <!-- Bouton avec ID pour attacher l'événement en JS -->
+            <button class="alert-modal-close-btn" id="alertModalCloseButton">OK</button>
+        </div>
+    </div>
+
+    <script type="module">
+        // Importations Firebase via modules ES6
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Variables globales fournies par l'environnement Canvas.
+        // Pour le développement local, nous allons fournir des valeurs fictives si elles ne sont pas définies.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'echo-verse-local-dev';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Configuration Firebase (récupérée de l'environnement ou par défaut pour le développement local)
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            // <!---- REMPLACEZ CECI ---->
+            // >>> Insérez VOTRE CLÉ API Firebase ici (elle se trouve dans les paramètres de votre projet Firebase) <<<
+            // Exemple : apiKey: "AIzaSyC_YOUR_FIREBASE_API_KEY_HERE_XYZ123",
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            // Les autres champs (authDomain, projectId, etc.) devraient être automatiquement fournis par l'environnement Canvas
+            // Si vous testez localement sans Canvas, vous devrez les remplir manuellement avec les vôtres.
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID_FROM_FIREBASE_SETTINGS"
+        };
+
+        let app;
+        let db;
+        let auth;
+        let userId;
+        let authReady = false; // Indicateur pour s'assurer que l'authentification est prête
+
+        // État du jeu
+        let gameState = {
+            playerName: '',
+            currentLocation: 'Le Néant Inconnu',
+            health: 100,
+            energy: 100,
+            gold: 0,
+            inventory: [],
+            skills: [],
+            storyHistory: []
+        };
+
+        let isGameStarted = false; // Pour éviter de redémarrer le jeu plusieurs fois
+
+        // Fonction pour afficher une alerte personnalisée (remplace alert())
+        function showAlert(title, message) {
+            document.getElementById('alertModalTitle').textContent = title;
+            document.getElementById('alertModalMessage').textContent = message;
+            document.getElementById('alertModal').style.display = 'flex';
+        }
+
+        function hideAlert() {
+            document.getElementById('alertModal').style.display = 'none';
+        }
+
+        // Fonction d'initialisation de Firebase
+        async function initializeFirebase() {
+            try {
+                // Avertissement si la clé API Firebase est toujours le placeholder
+                if (firebaseConfig.apiKey === "YOUR_FIREBASE_API_KEY" || !firebaseConfig.apiKey) {
+                    console.warn("ATTENTION : La clé API Firebase est manquante ou générique. Le stockage persistant et l'authentification Firebase ne fonctionneront PAS.");
+                    showAlert('Configuration Firebase', 'La clé API Firebase est manquante ou incorrecte. Le jeu ne pourra pas sauvegarder votre progression ou utiliser certaines fonctionnalités.');
+                }
+
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Écouteur d'état d'authentification Firebase
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Utilisateur connecté:", userId);
+                    } else if (initialAuthToken) {
+                        try {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                            console.log("Connecté avec un token personnalisé.");
+                            userId = auth.currentUser.uid;
+                        } catch (error) {
+                            console.warn("Échec de la connexion avec le token personnalisé, tentative de connexion anonyme:", error);
+                            await signInAnonymously(auth);
+                            userId = auth.currentUser.uid;
+                            console.log("Connecté anonymement après échec du token.");
+                        }
+                    } else {
+                        await signInAnonymously(auth);
+                        userId = auth.currentUser.uid;
+                        console.log("Connecté anonymement.");
+                    }
+                    userId = userId || crypto.randomUUID(); // Fallback si userId n'est toujours pas défini
+                    authReady = true;
+                    console.log("Firebase authReady:", authReady, "userId:", userId);
+
+                    loadGameState(); // Tenter de charger l'état du jeu après l'authentification
+                });
+
+                console.log("Firebase initialisé.");
+            } catch (error) {
+                console.error("Erreur d'initialisation de Firebase:", error);
+                showAlert('Erreur d\'Initialisation Firebase', 'Impossible de connecter l\'application au service de stockage. Le jeu ne fonctionnera pas correctement sans votre clé API Firebase.');
+            }
+        }
+
+        // Fonction pour générer l'histoire initiale via l'API Gemini
+        async function generateInitialStory() {
+            document.getElementById('loadingStory').style.display = 'block';
+
+            const prompt = `Crée une histoire de science-fiction immersive de type "choisissez votre propre aventure". Le joueur, ${gameState.playerName}, se réveille dans un vaisseau spatial abandonné. Décris l'environnement, les premières observations et la première décision cruciale qu'il doit prendre. Inclus des détails sur les sons, les lumières, et les sensations. Le ton doit être mystérieux et inviter à l'exploration. La réponse doit être un paragraphe cohérent.`;
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                // <!---- REMPLACEZ CECI ---->
+                // >>> Insérez VOTRE CLÉ API Google Cloud / Gemini ici <<<
+                // Exemple : const apiKey = "AIzaSyC_YOUR_GEMINI_API_KEY_HERE_XYZ123";
+                const apiKey = "YOUR_GEMINI_API_KEY";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                // Avertissement si la clé API Gemini est toujours le placeholder
+                if (apiKey === "YOUR_GEMINI_API_KEY" || !apiKey) {
+                    console.warn("ATTENTION : La clé API Gemini est manquante ou générique. La génération d'histoire ne fonctionnera PAS.");
+                    showAlert('Clé API Gemini Manquante', 'La clé API pour la génération d\'histoire est manquante ou incorrecte. Le jeu ne pourra pas générer de nouvelles histoires.');
+                    document.getElementById('loadingStory').style.display = 'none';
+                    throw new Error("Clé API Gemini manquante.");
+                }
+
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Erreur HTTP: ${response.status} - ${errorText}`);
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error("Aucune réponse valide de l'IA.");
+                }
+            } catch (error) {
+                console.error('Erreur lors de la génération de l\'histoire initiale:', error);
+                throw error;
+            } finally {
+                document.getElementById('loadingStory').style.display = 'none';
+            }
+        }
+
+        // Fonction pour traiter l'action du joueur et générer la suite de l'histoire via l'API Gemini
+        async function processAction(action) {
+            document.getElementById('loadingAction').style.display = 'block';
+
+            const prompt = `Le joueur, ${gameState.playerName}, est actuellement à ${gameState.currentLocation}. Voici l'historique de l'histoire jusqu'à présent :
+${gameState.storyHistory.map(entry => {
+    if (entry.action) return `Action du joueur : "${entry.action}"\nRéponse IA : "${entry.story}"`;
+    return `Début de l'histoire : "${entry.story}"`;
+}).join('\n')}
+
+L'inventaire du joueur est : [${gameState.inventory.map(item => `${item.name} (x${item.quantity})`).join(', ') || 'vide'}].
+La santé du joueur est de ${gameState.health}%.
+L'énergie du joueur est de ${gameState.energy}%.
+L'or du joueur est de ${gameState.gold}.
+
+Le joueur décide de : "${action}".
+En tenant compte de l'état actuel du jeu et de l'historique, décris la conséquence de cette action. Génère un objet JSON STRICTEMENT au format suivant pour mettre à jour l'état du jeu (même si les valeurs ne changent pas, incluez-les toutes) :
+\`\`\`json
+{
+    "story": "Texte de la suite de l'histoire.",
+    "gameState": {
+        "currentLocation": "Nouvel emplacement ou l'actuel",
+        "health": "Nouvelle valeur de santé (0-100)",
+        "energy": "Nouvelle valeur d'énergie (0-100)",
+        "gold": "Nouvelle valeur d'or",
+        "inventory": [
+            {"name": "Nom de l'objet", "quantity": "Quantité"},
+            {"name": "Autre objet", "quantity": "Quantité"}
+        ],
+        "skills": ["Nouvelle compétence", "Autre compétence"]
+    }
+}
+\`\`\`
+Assure-toi que toutes les clés de 'gameState' sont présentes, même si leurs valeurs restent inchangées.
+`;
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = {
+                    contents: chatHistory,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "story": { "type": "STRING" },
+                                "gameState": {
+                                    "type": "OBJECT",
+                                    "properties": {
+                                        "currentLocation": { "type": "STRING" },
+                                        "health": { "type": "NUMBER" },
+                                        "energy": { "type": "NUMBER" },
+                                        "gold": { "type": "NUMBER" },
+                                        "inventory": {
+                                            "type": "ARRAY",
+                                            "items": {
+                                                "type": "OBJECT",
+                                                "properties": {
+                                                    "name": { "type": "STRING" },
+                                                    "quantity": { "type": "NUMBER" }
+                                                }
+                                            }
+                                        },
+                                        "skills": {
+                                            "type": "ARRAY",
+                                            "items": { "type": "STRING" }
+                                        }
+                                    },
+                                    "required": ["currentLocation", "health", "energy", "gold", "inventory", "skills"]
+                                }
+                            },
+                            "required": ["story", "gameState"]
+                        }
+                    }
+                };
+
+                // <!---- REMPLACEZ CECI ---->
+                // >>> Insérez VOTRE CLÉ API Google Cloud / Gemini ici (MÊME CLÉ QUE POUR generateInitialStory) <<<
+                // Exemple : const apiKey = "AIzaSyC_YOUR_GEMINI_API_KEY_HERE_XYZ123";
+                const apiKey = "YOUR_GEMINI_API_KEY";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                // Avertissement si la clé API Gemini est toujours le placeholder
+                if (apiKey === "YOUR_GEMINI_API_KEY" || !apiKey) {
+                    console.warn("ATTENTION : La clé API Gemini est manquante ou générique. La génération d'histoire ne fonctionnera PAS.");
+                    showAlert('Clé API Gemini Manquante', 'La clé API pour la génération d\'histoire est manquante ou incorrecte. Le jeu ne pourra pas générer de nouvelles histoires.');
+                    document.getElementById('loadingAction').style.display = 'none';
+                    throw new Error("Clé API Gemini manquante.");
+                }
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Erreur HTTP: ${response.status} - ${errorText}`);
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    return JSON.parse(result.candidates[0].content.parts[0].text);
+                } else {
+                    throw new Error("Aucune réponse JSON valide de l'IA.");
+                }
+            } catch (error) {
+                console.error('Erreur lors du traitement de l\'action:', error);
+                showAlert('Erreur IA', `Impossible de générer la suite de l'histoire. Message: ${error.message}.`);
+                throw error;
+            } finally {
+                document.getElementById('loadingAction').style.display = 'none';
+            }
+        }
+
+        // Met à jour l'interface utilisateur avec l'état actuel du jeu
+        function updateUI() {
+            document.getElementById('displayPlayerName').textContent = gameState.playerName;
+            document.getElementById('displayCurrentLocation').textContent = gameState.currentLocation;
+
+            document.getElementById('displayHealthValue').textContent = `${gameState.health}%`;
+            document.getElementById('displayHealthBar').style.width = `${gameState.health}%`;
+            if (gameState.health < 30) {
+                document.getElementById('displayHealthBar').style.background = 'linear-gradient(90deg, #ff4444, #ff8888)';
+            } else {
+                document.getElementById('displayHealthBar').style.background = 'linear-gradient(90deg, var(--health-color), #88ff88)';
+            }
+
+            document.getElementById('displayEnergyValue').textContent = `${gameState.energy}%`;
+            document.getElementById('displayEnergyBar').style.width = `${gameState.energy}%`;
+            if (gameState.energy < 30) {
+                document.getElementById('displayEnergyBar').style.background = 'linear-gradient(90deg, #ff8800, #ffaa00)';
+            } else {
+                document.getElementById('displayEnergyBar').style.background = 'linear-gradient(90deg, var(--energy-color), #88aaff)';
+            }
+
+            document.getElementById('displayGoldValue').textContent = gameState.gold;
+
+            const inventoryGrid = document.getElementById('inventoryGrid');
+            inventoryGrid.innerHTML = '';
+            const maxSlots = 6;
+
+            gameState.inventory.forEach(item => {
+                const itemSlot = document.createElement('div');
+                itemSlot.className = 'inventory-slot filled';
+                itemSlot.innerHTML = `<span>${item.name}</span><span class="inventory-item-count">${item.quantity}</span>`;
+                inventoryGrid.appendChild(itemSlot);
+            });
+
+            for (let i = gameState.inventory.length; i < maxSlots; i++) {
+                const emptySlot = document.createElement('div');
+                emptySlot.className = 'inventory-slot';
+                emptySlot.innerHTML = '<span>Vide</span>';
+                inventoryGrid.appendChild(emptySlot);
+            }
+
+            const skillsList = document.getElementById('displaySkills');
+            skillsList.innerHTML = '';
+            if (gameState.skills && gameState.skills.length > 0) {
+                gameState.skills.forEach(skill => {
+                    const li = document.createElement('li');
+                    li.textContent = skill;
+                    skillsList.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = 'Aucune compétence pour le moment.';
+                skillsList.appendChild(li);
+            }
+        }
+
+        // Met à jour l'état du jeu avec les nouvelles données et sauvegarde
+        async function updateGameState(newGameState) {
+            gameState.currentLocation = newGameState.currentLocation || gameState.currentLocation;
+            gameState.health = Math.max(0, Math.min(100, newGameState.health));
+            gameState.energy = Math.max(0, Math.min(100, newGameState.energy));
+            gameState.gold = Math.max(0, newGameState.gold);
+
+            if (newGameState.inventory) {
+                gameState.inventory = newGameState.inventory;
+            }
+            if (newGameState.skills) {
+                gameState.skills = newGameState.skills;
+            }
+
+            updateUI();
+            await saveGameState();
+        }
+
+        // Sauvegarde l'état du jeu dans Firestore
+        async function saveGameState() {
+            if (!authReady || !db || !userId) {
+                console.warn("Firebase non prêt pour la sauvegarde. La sauvegarde ne sera pas effectuée.");
+                showAlert('Sauvegarde Impossible', 'Le service de sauvegarde n\'est pas prêt. Votre progression ne sera pas sauvegardée.');
+                return;
+            }
+            try {
+                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/gameStates`, 'currentGameState');
+                await setDoc(userDocRef, JSON.parse(JSON.stringify(gameState)));
+                console.log("État du jeu sauvegardé !");
+            } catch (error) {
+                console.error("Erreur lors de la sauvegarde de l'état du jeu:", error);
+                showAlert('Erreur de Sauvegarde', 'Impossible de sauvegarder votre progression. Vérifiez votre connexion ou la console pour les détails.');
+            }
+        }
+
+        // Charge l'état du jeu depuis Firestore
+        async function loadGameState() {
+            if (!authReady || !db || !userId) {
+                console.warn("Firebase non prêt pour le chargement. Tentative de chargement annulée.");
+                return;
+            }
+            try {
+                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/gameStates`, 'currentGameState');
+                const docSnap = await getDoc(userDocRef);
+
+                if (docSnap.exists()) {
+                    gameState = docSnap.data();
+                    console.log("État du jeu chargé !");
+                    if (!gameState.storyHistory) {
+                        gameState.storyHistory = [];
+                    }
+                    updateUI();
+                    document.getElementById('startScreen').style.display = 'none';
+                    document.getElementById('gameArea').style.display = 'block';
+                    isGameStarted = true;
+                } else {
+                    console.log("Aucun état de jeu sauvegardé trouvé. Démarrage d'une nouvelle partie.");
+                }
+            } catch (error) {
+                console.error("Erreur lors du chargement de l'état du jeu:", error);
+                showAlert('Erreur de Chargement', 'Impossible de charger votre progression. Une nouvelle partie va commencer.');
+                resetGameStateData();
+            }
+        }
+
+        // Démarre le jeu ou charge la partie sauvegardée
+        async function startGame() {
+            const playerNameInput = document.getElementById('playerNameInput');
+            const playerName = playerNameInput.value.trim();
+
+            if (!playerName) {
+                showAlert('Erreur', 'Veuillez entrer votre nom de joueur pour commencer.');
+                return;
+            }
+
+            gameState.playerName = playerName;
+            updateUI();
+
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'block';
+            document.getElementById('loadingStory').style.display = 'block';
+
+            isGameStarted = true;
+
+            try {
+                await loadGameState(); // Tente de charger avant de générer une nouvelle histoire
+
+                if (gameState.storyHistory.length === 0) { // Si aucune histoire n'a été chargée
+                    const initialStory = await generateInitialStory();
+                    displayStoryEntry(initialStory, null);
+                }
+            } catch (error) {
+                showAlert('Erreur', 'Impossible de démarrer l\'aventure. Veuillez réessayer. Assurez-vous que votre clé API Gemini est correcte.');
+                console.error('Erreur lors du démarrage:', error);
+            } finally {
+                document.getElementById('loadingStory').style.display = 'none';
+            }
+        }
+
+        // Effectuer une action
+        async function performAction() {
+            const action = document.getElementById('actionInput').value.trim();
+
+            if (!action) {
+                showAlert('Erreur', 'Veuillez décrire votre action.');
+                return;
+            }
+
+            document.getElementById('loadingAction').style.display = 'block';
+            document.getElementById('actionInput').value = '';
+
+            try {
+                const response = await processAction(action);
+                displayStoryEntry(response.story, action);
+                await updateGameState(response.gameState);
+            } catch (error) {
+                showAlert('Erreur', 'Erreur lors du traitement de votre action. Veuillez réessayer. Assurez-vous que votre clé API Gemini est correcte.');
+                console.error('Erreur lors de l\'action:', error);
+            } finally {
+                document.getElementById('loadingAction').style.display = 'none';
+            }
+        }
+
+        // Afficher une entrée d'histoire
+        function displayStoryEntry(story, action) {
+            const storyContent = document.getElementById('storyContent');
+            const storyEntryDiv = document.createElement('div');
+            storyEntryDiv.className = 'story-entry';
+
+            if (action) {
+                const userActionP = document.createElement('p');
+                userActionP.className = 'user-action';
+                userActionP.textContent = `▶ Votre action : "${action}"`;
+                storyEntryDiv.appendChild(userActionP);
+            }
+
+            const aiResponseP = document.createElement('p');
+            aiResponseP.className = 'ai-response';
+            aiResponseP.innerHTML = story.replace(/\n/g, '<br>');
+            storyEntryDiv.appendChild(aiResponseP);
+
+            storyContent.appendChild(storyEntryDiv);
+            storyContent.scrollTop = storyContent.scrollHeight;
+            gameState.storyHistory.push({ action: action, story: story });
+        }
+
+        // Réinitialise le jeu à son état initial
+        async function resetGame() {
+            showAlert('Réinitialiser le jeu', 'Êtes-vous sûr de vouloir réinitialiser l\'aventure ? Toute progression sera perdue localement et dans le cloud.');
+
+            // Cette fonction sera appelée quand l'utilisateur clique sur OK dans la modale d'alerte
+            // Nous utilisons un écouteur temporaire pour gérer cette interaction.
+            const handleConfirmReset = async function () {
+                hideAlert();
+                document.getElementById('alertModalCloseButton').removeEventListener('click', handleConfirmReset); // Supprimer l'écouteur après usage
+
+                resetGameStateData();
+                updateUI();
+
+                if (authReady && db && userId) {
+                    try {
+                        const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/gameStates`, 'currentGameState');
+                        await deleteDoc(userDocRef);
+                        console.log("Sauvegarde du jeu supprimée de Firestore.");
+                        showAlert('Jeu Réinitialisé', 'L\'aventure a été réinitialisée et la sauvegarde supprimée. Vous pouvez commencer une nouvelle partie !');
+                    } catch (error) {
+                        console.error("Erreur lors de la suppression de la sauvegarde:", error);
+                        showAlert('Erreur', 'Impossible de supprimer la sauvegarde de Firestore. Veuillez réessayer.');
+                    }
+                } else {
+                    showAlert('Jeu Réinitialisé', 'L\'aventure a été réinitialisée localement. La sauvegarde cloud n\'était pas active ou n\'a pas pu être supprimée.');
+                }
+
+                document.getElementById('startScreen').style.display = 'block';
+                document.getElementById('gameArea').style.display = 'none';
+                document.getElementById('playerNameInput').value = '';
+                document.getElementById('storyContent').innerHTML = '';
+                document.getElementById('actionInput').value = '';
+                isGameStarted = false;
+            };
+
+            document.getElementById('alertModalCloseButton').addEventListener('click', handleConfirmReset);
+        }
+
+        // Fonction interne pour réinitialiser l'état du jeu en mémoire et l'UI associée
+        function resetGameStateData() {
+            gameState = {
+                playerName: '',
+                currentLocation: 'Le Néant Inconnu',
+                health: 100,
+                energy: 100,
+                gold: 0,
+                inventory: [],
+                skills: [],
+                storyHistory: []
+            };
+
+            document.getElementById('displayCurrentLocation').textContent = 'Inconnu';
+            document.getElementById('displayHealthValue').textContent = '100%';
+            document.getElementById('displayHealthBar').style.width = '100%';
+            document.getElementById('displayHealthBar').style.background = 'linear-gradient(90deg, var(--health-color), #ff8888)';
+
+            document.getElementById('displayEnergyValue').textContent = '100%';
+            document.getElementById('displayEnergyBar').style.width = '100%';
+            document.getElementById('displayEnergyBar').style.background = 'linear-gradient(90deg, var(--energy-color), #88aaff)';
+
+            document.getElementById('displayGoldValue').textContent = '0';
+
+            const inventoryGrid = document.getElementById('inventoryGrid');
+            inventoryGrid.innerHTML = '';
+            const maxSlots = 6;
+            for (let i = 0; i < maxSlots; i++) {
+                const emptySlot = document.createElement('div');
+                emptySlot.className = 'inventory-slot';
+                emptySlot.innerHTML = '<span>Vide</span>';
+                inventoryGrid.appendChild(emptySlot);
+            }
+
+            const skillsList = document.getElementById('displaySkills');
+            skillsList.innerHTML = '';
+            const li = document.createElement('li');
+            li.textContent = 'Aucune compétence pour le moment.';
+            skillsList.appendChild(li);
+        }
+
+        // Attacher les écouteurs d'événements et démarrer l'initialisation après le chargement du DOM
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializeFirebase(); // Assurez-vous que Firebase est initialisé avant d'attacher les écouteurs qui en dépendent.
+
+            // Attacher les écouteurs d'événements aux boutons
+            document.getElementById('startGameButton').addEventListener('click', startGame);
+            document.getElementById('performActionButton').addEventListener('click', performAction);
+            document.getElementById('resetGameButton').addEventListener('click', resetGame);
+            document.getElementById('alertModalCloseButton').addEventListener('click', hideAlert);
+        });
+    </script>
+</body>
+</html>
