@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo Verse - Mon Profil</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-brand">
+            <a href="index.html">
+                <img src="https://placehold.co/150x50/1a1a2e/8be9fd?text=ECHO+VERSE+LOGO" alt="Logo Echo Verse" class="h-10">
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Jouer</a></li>
+            <li><a href="profile.html" class="active">Mon Profil</a></li>
+            <li><a href="history.html">Historique</a></li>
+            <li><a href="instructions.html">Instructions</a></li>
+            <li><a href="lore.html">L'Univers</a></li>
+            <li><a href="community.html">Communauté</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Soutien</a>
+                <div class="dropdown-content">
+                    <a href="contact.html">Nous Joindre</a>
+                    <a href="bug-report.html">Rapporter un Bug</a>
+                    <a href="updates.html">Mises à Jour</a>
+                    <a href="donate.html">Faire un Don</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="content-wrapper">
+        <div class="container" style="flex-direction: column; align-items: center; max-width: 800px;">
+            <h1>Mon Profil</h1>
+
+            <div class="stats-box w-full mb-4">
+                <h2>Informations Générales</h2>
+                <p>Nom d'affichage: <span id="profile-display-name">Chargement...</span></p>
+                <p>Nom du personnage: <span id="profile-player-name">N/A</span></p>
+                <p>Archétype: <span id="profile-player-archetype">N/A</span></p>
+                <p>Mode de Jeu: <span id="profile-game-mode">N/A</span></p>
+            </div>
+
+            <div class="stats-box w-full mb-4">
+                <h2>Description du Personnage</h2>
+                <p>Apparence: <span id="profile-player-description">N/A</span></p>
+                <p>Background: <span id="profile-player-background">N/A</span></p>
+            </div>
+
+            <div class="stats-box w-full mb-4">
+                <h2>Statistiques</h2>
+                <ul>
+                    <li>Vigueur: <span id="profile-vigor-value">N/A</span></li>
+                    <li>Ingéniosité: <span id="profile-ingenuity-value">N/A</span></li>
+                    <li>Adaptation: <span id="profile-adaptation-value">N/A</span></li>
+                    <li>Influence: <span id="profile-influence-value">N/A</span></li>
+                </ul>
+            </div>
+            <div class="stats-box w-full mb-4">
+                <h2>Inventaire</h2>
+                <ul id="profile-inventory-list">
+                    <li>Aucun objet</li>
+                </ul>
+            </div>
+            <div class="stats-box w-full mb-4">
+                <h2>Relations Factionnelles</h2>
+                <ul>
+                    <li>Garde Chronique: <span id="profile-garde-chronique-relation">N/A</span></li>
+                    <li>Flux Libres: <span id="profile-flux-libres-relation">N/A</span></li>
+                    <li>Résonances Obscures: <span id="profile-resonances-obscures-relation">N/A</span></li>
+                </ul>
+            </div>
+            <div class="stats-box w-full mb-4">
+                <h2>PNJ Rencontrés</h2>
+                <ul id="profile-npcs-list">
+                    <li>Aucun PNJ</li>
+                </ul>
+            </div>
+            <div class="stats-box w-full mb-4">
+                <h2>Quêtes Actives</h2>
+                <ul id="profile-quests-list">
+                    <li>Aucune quête</li>
+                </ul>
+            </div>
+            <div class="stats-box w-full mb-4">
+                <h2>Événements Mondiaux</h2>
+                <ul id="profile-events-list">
+                    <li>Aucun événement</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <p>&copy; 2024 Echo Verse. Tous droits réservés. Reproduction ou utilisation non autorisée du contenu, des logos et des concepts strictement interdite.</p>
+        <p>Ce site utilise des technologies d'IA générative et de base de données. Pour plus d'informations, consultez nos <a href="#" class="text-blue-400 hover:underline">Conditions d'Utilisation</a> et notre <a href="#" class="text-blue-400 hover:underline">Politique de Confidentialité</a>.</p>
+    </footer>
+
+    <!-- Firebase SDKs (dépendances requises pour Firestore et Auth) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firestoreDb = db;
+        window.canvasAppId = appId;
+
+        // Global function for custom alerts (used by script.js as well)
+        window.showAlert = (message, type = 'info') => {
+            // Placeholder for custom modal. For now, using native alert for non-game pages.
+            alert(message); 
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                window.currentUserId = user.uid;
+                const userProfileRef = doc(db, 'artifacts', appId, 'users', window.currentUserId);
+                const userProfileSnap = await getDoc(userProfileRef);
+
+                if (userProfileSnap.exists() && userProfileSnap.data().displayName) {
+                    window.playerDisplayName = userProfileSnap.data().displayName;
+                } else {
+                    window.playerDisplayName = 'Non connecté / Non défini';
+                }
+                
+                // Load profile data after auth state is determined and displayName is known
+                if (window.loadGameSession) { // Check if function is loaded from script.js
+                    await window.loadGameSession(window.currentUserId);
+                } else {
+                    console.warn("window.loadGameSession not yet available from script.js for profile page. Cannot load profile data.");
+                }
+
+            } else {
+                window.currentUserId = null;
+                window.playerDisplayName = 'Non connecté';
+                // Reset profile display if not authenticated
+                if (document.getElementById('profile-display-name')) document.getElementById('profile-display-name').textContent = 'Non connecté';
+                if (document.getElementById('profile-player-name')) document.getElementById('profile-player-name').textContent = 'Veuillez vous connecter pour voir votre profil.';
+                console.log("Firebase Non Authentifié sur profile.html.");
+            }
+        });
+
+        (async () => {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Erreur d'authentification initiale sur profile.html:", error);
+                window.showAlert("Impossible de se connecter automatiquement. Veuillez réessayer.", "error");
+            }
+        })();
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

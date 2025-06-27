@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo Verse - Historique des Parties</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-brand">
+            <a href="index.html">
+                <img src="https://placehold.co/150x50/1a1a2e/8be9fd?text=ECHO+VERSE+LOGO" alt="Logo Echo Verse" class="h-10">
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Jouer</a></li>
+            <li><a href="profile.html">Mon Profil</a></li>
+            <li><a href="history.html" class="active">Historique</a></li>
+            <li><a href="instructions.html">Instructions</a></li>
+            <li><a href="lore.html">L'Univers</a></li>
+            <li><a href="community.html">Communauté</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Soutien</a>
+                <div class="dropdown-content">
+                    <a href="contact.html">Nous Joindre</a>
+                    <a href="bug-report.html">Rapporter un Bug</a>
+                    <a href="updates.html">Mises à Jour</a>
+                    <a href="donate.html">Faire un Don</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="content-wrapper">
+        <div class="header">
+            <h1>Historique des Parties</h1>
+            <p>Retrouvez un aperçu de vos aventures passées dans l'Echo Verse.</p>
+        </div>
+        <div class="container" style="flex-direction: column; align-items: center; max-width: 800px;">
+
+            <div class="card w-full mb-4">
+                <h2>Votre Dernière Aventure</h2>
+                <ul id="sessions-history-list">
+                    <li>Chargement de l'historique...</li>
+                </ul>
+            </div>
+            
+            <!-- Vous pourriez ajouter plus tard une logique pour afficher plusieurs sessions sauvegardées si votre backend le permet -->
+
+        </div>
+    </div>
+
+    <!-- La Modal Personnalisée (notre version) -->
+    <div id="custom-alert-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <p id="modal-message" class="modal-message"></p>
+            <button id="modal-ok-button" class="modal-button">OK</button>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <p>&copy; 2024 Echo Verse. Tous droits réservés. Reproduction ou utilisation non autorisée du contenu, des logos et des concepts strictement interdite.</p>
+        <p>Ce site utilise des technologies d'IA générative et de base de données. Pour plus d'informations, consultez nos <a href="#" class="text-blue-400 hover:underline">Conditions d'Utilisation</a> et notre <a href="#" class="text-blue-400 hover:underline">Politique de Confidentialité</a>.</p>
+    </footer>
+
+    <!-- Firebase SDKs (dépendances requises pour Firestore et Auth) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firestoreDb = db;
+        window.canvasAppId = appId;
+
+        // Global function for custom alerts (used by script.js as well)
+        window.showAlert = (message, type = 'info') => {
+            const customAlertModal = document.getElementById('custom-alert-modal');
+            const modalMessage = document.getElementById('modal-message');
+            const modalOkButton = document.getElementById('modal-ok-button');
+            const closeButton = document.querySelector('#custom-alert-modal .close-button');
+
+            if (!customAlertModal || !modalMessage || !modalOkButton || !closeButton) {
+                console.error("Custom alert modal elements not found.");
+                alert(message);
+                return;
+            }
+
+            modalMessage.textContent = message;
+            customAlertModal.classList.add('active');
+            
+            modalMessage.parentNode.classList.remove('error', 'success', 'info');
+            modalMessage.parentNode.classList.add(type);
+
+            customAlertModal.style.display = 'flex';
+
+            const closeModal = () => {
+                customAlertModal.style.display = 'none';
+                customAlertModal.classList.remove('active');
+            };
+
+            modalOkButton.onclick = closeModal;
+            closeButton.onclick = closeModal;
+            customAlertModal.onclick = (event) => {
+                if (event.target === customAlertModal) {
+                    closeModal();
+                }
+            };
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                window.currentUserId = user.uid;
+                // No need to get display name here, script.js will handle it for specific UI updates
+                if (window.loadGameSession) {
+                    await window.loadGameSession(window.currentUserId);
+                } else {
+                    console.warn("window.loadGameSession not yet available from script.js for history page. Cannot load history data.");
+                    document.getElementById('sessions-history-list').innerHTML = '<li>Veuillez vous connecter pour voir votre historique.</li>';
+                }
+            } else {
+                window.currentUserId = null;
+                document.getElementById('sessions-history-list').innerHTML = '<li>Veuillez vous connecter pour voir votre historique.</li>';
+                console.log("Firebase Non Authentifié sur history.html.");
+            }
+        });
+
+        (async () => {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Erreur d'authentification initiale sur history.html:", error);
+                window.showAlert("Impossible de se connecter automatiquement. Veuillez réessayer.", "error");
+            }
+        })();
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

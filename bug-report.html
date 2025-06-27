@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo Verse - Rapporter un Bug</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-brand">
+            <a href="index.html">
+                <img src="https://placehold.co/150x50/1a1a2e/8be9fd?text=ECHO+VERSE+LOGO" alt="Logo Echo Verse" class="h-10">
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Jouer</a></li>
+            <li><a href="profile.html">Mon Profil</a></li>
+            <li><a href="history.html">Historique</a></li>
+            <li><a href="instructions.html">Instructions</a></li>
+            <li><a href="lore.html">L'Univers</a></li>
+            <li><a href="community.html">Communauté</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn active">Soutien</a>
+                <div class="dropdown-content">
+                    <a href="contact.html">Nous Joindre</a>
+                    <a href="bug-report.html" class="active">Rapporter un Bug</a>
+                    <a href="updates.html">Mises à Jour</a>
+                    <a href="donate.html">Faire un Don</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="content-wrapper">
+        <div class="container" style="flex-direction: column; align-items: center; max-width: 800px;">
+            <h1>Rapporter un Bug</h1>
+            <div class="stats-box w-full mb-4">
+                <p>Votre aide est précieuse pour améliorer Echo Verse ! Si vous avez rencontré un bug ou un comportement inattendu, veuillez le signaler ici.</p>
+                <h2 class="mt-4">Formulaire de Rapport de Bug (factice)</h2>
+                <form class="bug-report-form">
+                    <div class="form-group mb-3">
+                        <label for="bug-title" class="block text-white text-sm font-bold mb-2">Titre du Bug (résumé):</label>
+                        <input type="text" id="bug-title" name="bug-title" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Ex: Impossible de charger la partie">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="bug-description" class="block text-white text-sm font-bold mb-2">Description Détaillée du Bug:</label>
+                        <textarea id="bug-description" name="bug-description" rows="7" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Décrivez en détail comment reproduire le bug, ce que vous attendiez et ce qui s'est passé."></textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="steps-to-reproduce" class="block text-white text-sm font-bold mb-2">Étapes pour Reproduire (numérotées):</label>
+                        <textarea id="steps-to-reproduce" name="steps-to-reproduce" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="1. Aller à [page]&#10;2. Cliquer sur [bouton]&#10;3. Observer [comportement]"></textarea>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="browser-info" class="block text-white text-sm font-bold mb-2">Navigateur et Système d'Exploitation:</label>
+                        <input type="text" id="browser-info" name="browser-info" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Ex: Chrome 120 sur Windows 11">
+                    </div>
+                    <button type="submit" class="button-contact">Envoyer le Rapport</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <p>&copy; 2024 Echo Verse. Tous droits réservés. Reproduction ou utilisation non autorisée du contenu, des logos et des concepts strictement interdite.</p>
+        <p>Ce site utilise des technologies d'IA générative et de base de données. Pour plus d'informations, consultez nos <a href="#" class="text-blue-400 hover:underline">Conditions d'Utilisation</a> et notre <a href="#" class="text-blue-400 hover:underline">Politique de Confidentialité</a>.</p>
+    </footer>
+</body>
+</html>
